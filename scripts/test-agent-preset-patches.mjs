@@ -65,6 +65,14 @@ for (const name of PRESETS) {
 console.log('## 3. 守卫行引用方式：只用「profile 目录可解析」的裸说明符');
 for (const name of PRESETS) {
   const row = load(patchFileFor(name))[0].insert[0];
+  if (name === 'qq-owner-v2') {
+    ok(!row.config.plugins.some(r => r.id === 'qq-tool-restrict'), `${name}: 显式启用的主人预设保留本机工具`);
+    continue;
+  }
+  if (name === 'qq-doubao-image') {
+    ok(row.config.plugins.some(r => r.id === 'browser-only' && r.name === 'qq-agent-presets/qq-browser-only.mjs'), `${name}: 使用专用浏览器守卫`);
+    continue;
+  }
   const guard = row.config.plugins.find((r) => r.id === 'qq-tool-restrict');
   ok(guard !== undefined, `${name}: 有 qq-tool-restrict 守卫行`);
   ok(guard?.name === GUARD_SPECIFIER, `${name}: 守卫行 name = ${GUARD_SPECIFIER}`);
@@ -93,6 +101,7 @@ console.log('## 4. bundle 声明与安全边界');
   // 一份实现：两个 preset 目录下的同名文件必须是 re-export 壳，且导出同名成员。
   const canonicalMod = await import(pathToFileURL(canonical).href);
   for (const name of PRESETS) {
+    if (!['qq-chat', 'qq-chat-v2'].includes(name)) continue;
     const shim = path.join(REPO_ROOT, 'dsh', 'agent-presets', name, 'qq-tool-restrict.mjs');
     ok(/^export \* from '\.\.\/\.\.\/\.\.\/plugins\/qq-agent-presets\/qq-tool-restrict\.mjs'$/m.test(read(shim).trim()),
       `${name}/qq-tool-restrict.mjs 是指向唯一实现的 re-export 壳`);

@@ -1,6 +1,7 @@
 // Execute the real bridge initialization/functions against temporary files and fake peers.
 // No production config, QQ connection, DSH process, or persistent home is accessed.
 import fs from 'node:fs';
+import {createMemoryStore,sanitizeMemoryText,sanitizeMemoryValue} from '../src/memory-store.js';
 import os from 'node:os';
 import path from 'node:path';
 import http from 'node:http';
@@ -163,7 +164,7 @@ export async function bridgeHarness({ config = {}, savedState, files = {}, globa
       selfNickname = selfDisplayName.toLowerCase() || 'deepseek';
     },
     flushQueue, retireSession,
-    voiceCfg, voiceLibrary, resolveVoicePathForV2, resolveVoicePathForOperator,
+    durableMemory, shutdownMemory, voiceCfg, voiceLibrary, resolveVoicePathForV2, resolveVoicePathForOperator,
     voiceBudgetCheck, sendVoiceV2, sendVoiceForV2, assertOutboundAuditOk,
     setMode(value) { currentMode = value; },
     setReady(value) { dshReady = value; },
@@ -173,7 +174,7 @@ export async function bridgeHarness({ config = {}, savedState, files = {}, globa
   bot.onPrivateMessage(async (event) => {`);
   const timers = new Set();
   const context = vm.createContext({
-    fs, os, path, http, crypto, fileURLToPath, URL, Buffer, AbortSignal, console: { log() {}, error() {} },
+    fs, os, path, http, crypto, fileURLToPath, URL, Buffer, AbortSignal, createMemoryStore, sanitizeMemoryText, sanitizeMemoryValue, console: { log() {}, error() {} },
     fetch: fakeFetch,
     // 锁文件探测用（bridge.js 顶层的 consolePortInUse）；
     // 固定桩掉：测试不应该真去 netstat 宿主机。
@@ -224,6 +225,7 @@ export async function bridgeHarness({ config = {}, savedState, files = {}, globa
   bridge.setPresets(['standard', 'qq-chat', 'qq-chat-v2']);
   bridge.setReady(true);
   return { ...bridge, calls, temp, async close() {
+    await bridge.shutdownMemory();
     for (const timer of timers) clearTimeout(timer);
     fs.rmSync(temp, { recursive: true, force: true });
   } };

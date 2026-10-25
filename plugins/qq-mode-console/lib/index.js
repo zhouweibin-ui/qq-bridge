@@ -109,6 +109,15 @@ export const Config = z.object({
  * 命名空间的可读写性与设置页无关。
  */
 export function apply(ctx) {
+  // Desktop uses an OS-assigned port. Publish only its loopback address, never a credential.
+  ctx.inject?.(['webServer'], (webCtx) => {
+    const file = path.join(process.env.DSH_HOME || path.join(os.homedir(), '.dsh'), 'qq-bridge-desktop-endpoint.json');
+    const baseUrl = `${webCtx.webServer.protocol || 'http:'}//127.0.0.1:${webCtx.webServer.port}`;
+    fs.writeFileSync(file, JSON.stringify({baseUrl, pid:process.pid}), {mode:0o600});
+    webCtx.effect(() => () => {
+      try { if (JSON.parse(fs.readFileSync(file, 'utf8')).pid === process.pid) fs.unlinkSync(file); } catch {}
+    });
+  });
   diag(`apply called; settings service=${typeof ctx.settings}; namespace=${QQMODE_NAMESPACE} (0.2.0: no registration needed)`);
 }
 

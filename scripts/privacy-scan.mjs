@@ -219,7 +219,7 @@ for (const rel of files) {
   // ② 内容级：一个文件里同一规则最多报 3 处（带行号），方便直接定位；不要把整文件刷屏。
   for (const rule of rules.deny) {
     let re;
-    try { re = new RegExp(rule.pattern, rule.flags ?? 'g'); }
+    try { re = new RegExp(rule.pattern, [...new Set(`${rule.flags ?? ''}g`)].join('')); }
     catch (error) { console.error(`[privacy-scan] 规则「${rule.name}」正则非法：${error.message}`); continue; }
     re.lastIndex = 0;
     let m;
@@ -256,7 +256,7 @@ for (const rel of files) {
  */
 function isNoise(value, rule) {
   if (rule.requireNonHex && /^[0-9a-f]+$/i.test(value)) return true;
-  if (/^[A-Z0-9_]+$/.test(value)) return true;                       // 环境变量名/常量
+  if (/^[A-Z0-9_-]+$/.test(value)) return true;                      // 环境变量名/常量/审计文档名
   if (/^[a-z0-9._-]+$/.test(value)) return true;                     // 文件名/包名/路径片段
   if (/^[A-Za-z0-9]+$/.test(value) && !(/[a-z]/.test(value) && /[A-Z]/.test(value) && /[0-9]/.test(value))) return true;
   return false;

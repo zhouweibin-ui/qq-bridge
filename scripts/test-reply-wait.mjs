@@ -201,3 +201,27 @@ test('each reply-wait buffer obeys its own tool switch, never the other one', ()
   assert.deepEqual(r3.data.newMessages, []);
   assert.equal(r3.data.readThroughSeq, 5, 'a message nobody was allowed to see may not advance the watermark');
 }));
+
+test('zero quiet cap overrides a model-requested 12-second first-reply wait', () => fixture(async ({ h, key, st, request, append }) => {
+  append('reply now');
+  await h.sendWakePromptV2(key, 'question');
+  st.lastIncomingAt = Date.now();
+  const result = await request('wait', { purpose: 'reply', timeoutMs: 30000, quietMs: 12000 });
+  assert.equal(result.status, 200);
+  assert.equal(result.data.quietMs, 0);
+  assert.equal(result.data.quiet, true);
+  assert.ok(result.data.waitedMs < 500);
+}, {wait:{minMs:0,maxMs:600000,minQuietAfterNewMs:0,defaultQuietMs:0,maxQuietMs:0}}));
+
+test('zero quiet cap returns new messages immediately from an ongoing wait', () => fixture(async ({ request, append }) => {
+  append('known');
+  await request('unread');
+  const timer = setTimeout(() => append('new message'), 100);
+  try {
+    const started = Date.now();
+    const result = await request('wait', {purpose:'messages',timeoutMs:30000,quietMs:12000});
+    assert.equal(result.data.arrived,true);
+    assert.equal(result.data.quietMs,0);
+    assert.ok(Date.now()-started < 1000);
+  } finally {clearTimeout(timer);}
+}, {wait:{minMs:0,maxMs:600000,minQuietAfterNewMs:0,defaultQuietMs:0,maxQuietMs:0}}));

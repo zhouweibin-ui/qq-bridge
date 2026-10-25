@@ -7,7 +7,8 @@
     "authToken": "",
     "authHeader": "authorization",
     "authPrefix": "Bearer",
-    "allowRemote": false
+    "allowRemote": false,
+    "desktopEndpointFile": ""
   },
   "role": {
     "maxInjectChars": 6000
@@ -140,7 +141,8 @@
       "stickerNote": true,
       "collectSticker": true,
       "getSelfImage": true,
-      "sendVoice": false
+      "sendVoice": false,
+      "sendQzone": true
     },
     "wake": {
       "defaultMode": "diving",
@@ -263,6 +265,11 @@
       "gifFrames": 6,
       "gifTile": 240,
       "normalizeTimeoutMs": 25000
+    },
+    "ownerCommandAccess": false,
+    "qzone": {
+      "enabled": true,
+      "maxPerDay": 5
     }
   },
   "webSearch": {
@@ -275,5 +282,11 @@
     "maxTokens": 4096,
     "maxResults": 8,
     "timeoutMs": 35000
+  },
+  "memory": {
+    "enabled": false,
+    "vector": {
+      "enabled": false
+    }
   }
 }

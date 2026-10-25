@@ -321,6 +321,24 @@ export class NodeApiClient extends AbstractApiClient {
     this._desiredFollows = new Set();
   }
 
+  // Follow the Desktop host's changing port without a separate proxy process.
+  get baseUrl() {
+    const file = this.auth?.desktopEndpointFile;
+    if (file) {
+      try {
+        const endpoint = JSON.parse(fs.readFileSync(file, 'utf8'));
+        const url = new URL(endpoint.baseUrl);
+        process.kill(endpoint.pid, 0);
+        if (url.protocol === 'http:' && url.hostname === '127.0.0.1' && this._baseUrl !== url.origin) {
+          this._baseUrl = url.origin;
+          this.invalidateAuth();
+        }
+      } catch {}
+    }
+    return this._baseUrl;
+  }
+  set baseUrl(value) { this._baseUrl = value; }
+
   /** Node 没有 location；把 base 固定为配置的 DSH 地址（回环地址天然通过 /api 信任栅栏）。 */
   resolveBase() {
     return this.baseUrl;

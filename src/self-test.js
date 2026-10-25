@@ -48,7 +48,7 @@ async function main() {
   } catch {}
   const api = new NodeApiClient(baseUrl, undefined, auth);
   selfTestApi = api;
-  const promptText = process.argv[3] ?? '只回复两个字：收到';
+  const promptText = process.env.QQ_BRIDGE_SELFTEST_PROMPT_FILE ? fs.readFileSync(process.env.QQ_BRIDGE_SELFTEST_PROMPT_FILE, 'utf8') : (process.argv[3] ?? '只回复两个字：收到');
 
   const desc = unwrap(await api.settings.describe({}), 'settings.describe');
   console.log('✅ DSH 连接成功:', JSON.stringify(desc).slice(0, 200));
@@ -59,7 +59,8 @@ async function main() {
   // 会直接 EPERM 建目录。自检是一次性探针，产物本来也不该落进仓库状态目录。
   const cwd = path.join(os.tmpdir(), 'qq-bridge-self-test');
   fs.mkdirSync(cwd, { recursive: true });
-  const created = unwrap(await api.sessions.create({ cwd }), 'session.create');
+  const agentPreset = process.env.QQ_BRIDGE_SELFTEST_PRESET;
+  const created = unwrap(await api.sessions.create({ cwd, ...(agentPreset ? {agentPreset} : {}) }), 'session.create');
   const sessionId = created.sessionId;
   selfTestSessionId = sessionId;
   console.log('✅ 测试会话已创建:', sessionId);

@@ -23,8 +23,8 @@ import yaml from 'js-yaml';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(__dirname, '..');
 
-/** 由桥接托管的两个 preset（顺序即 patch 层顺序）。 */
-export const PRESETS = ['qq-chat', 'qq-chat-v2'];
+/** 由桥接托管的 preset（顺序即 patch 层顺序）。 */
+export const PRESETS = ['qq-chat', 'qq-chat-v2', 'qq-owner-v2', 'qq-doubao-image'];
 
 /** preset 行 id：与 config.id（桥接解析的 preset 名）区分开，方便在 profile patch 里按行定位。 */
 export function presetRowId(name) {
@@ -103,7 +103,7 @@ function normalizeRows(rows, preset) {
     return next;
   });
   const normalized = walk(rows, 'plugins');
-  for (const required of ['persona', 'qq-tool-restrict']) {
+  for (const required of (preset === 'qq-owner-v2' ? ['persona', 'tool-bash', 'tool-fs'] : preset === 'qq-doubao-image' ? ['persona','browser-only'] : ['persona', 'qq-tool-restrict'])) {
     if (!seen.has(required)) throw new Error(`${preset}: 行列表缺少 ${required} 行（安全/人格边界不允许缺失）`);
   }
   return normalized;

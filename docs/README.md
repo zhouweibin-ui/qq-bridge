@@ -1,5 +1,7 @@
 # 文档索引（docs/README.md）
 
+本 fork 新增功能入口：[主人助手、记忆、Desktop、空间与实验性生图](guides/FORK_FEATURES.md)；[长期记忆配置与迁移](memory.md)。
+
 > 根目录只留 `README.md` / `README.en.md` / `RULES.md` 三个文档，其余全部在本目录下。
 > 仓库目录结构与 `scripts/` 命名约定见 **[FOLDER_MAP.md](FOLDER_MAP.md)**。
 >

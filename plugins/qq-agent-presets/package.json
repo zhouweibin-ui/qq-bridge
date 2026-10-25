@@ -8,7 +8,9 @@
     "bundle": {
       "patch": [
         "./presets/qq-chat.patch.yml",
-        "./presets/qq-chat-v2.patch.yml"
+        "./presets/qq-chat-v2.patch.yml",
+        "./presets/qq-owner-v2.patch.yml",
+        "./presets/qq-doubao-image.patch.yml"
       ]
     }
   }

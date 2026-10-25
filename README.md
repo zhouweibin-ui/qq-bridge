@@ -2,6 +2,8 @@
 
 **English**: [README.en.md](README.en.md) | **中文**: [README.md](README.md)
 
+> 本 fork 新增主人专属命令助手、本地长期记忆与语义检索、DSH Desktop 动态端口、QQ 空间工具和实验性网页生图预设。配置与限制见 [Fork 功能说明](docs/guides/FORK_FEATURES.md)。
+
 > 🗂️ 文档索引（全部文档一句话说明 + 是否仍然有效）见 **[docs/README.md](docs/README.md)**；仓库目录/脚本命名约定见 **[docs/FOLDER_MAP.md](docs/FOLDER_MAP.md)**。
 >
 > 🔒 QQ 会话的权限边界与安全承诺见 **[RULES.md](RULES.md)**。
